@@ -1,304 +1,842 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Request Form</title>
+    <title>NFT Request Form Builder - TELUS FueliX</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             color: #e0e0e0;
-            padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
         }
-        h1 { color: #4fc3f7; margin-bottom: 10px; text-align: center; }
-        .subtitle { text-align: center; color: #90a4ae; margin-bottom: 30px; }
-        .section { margin-bottom: 25px; }
-        .section h2 { color: #4fc3f7; font-size: 1.1rem; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #b0bec5; font-size: 0.9rem; }
-        input, textarea, select {
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #90a4ae;
+            font-size: 0.95rem;
+        }
+        .telus-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4b286d, #6a3d9a);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .progress-bar-wrap {
+            background: #1e2a3a;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4b286d, #4fc3f7);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        .progress-label {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #90a4ae;
+            margin-top: 4px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .section-title {
+            font-size: 1.2rem;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .icon { font-size: 1.4rem; }
+        .section-subtitle {
+            font-size: 0.82rem;
+            color: #78909c;
+            margin-bottom: 20px;
+        }
+        .question-block {
+            margin-bottom: 22px;
+        }
+        label {
+            display: block;
+            font-size: 0.88rem;
+            color: #b0bec5;
+            margin-bottom: 6px;
+        }
+        label .required { color: #ef5350; margin-left: 3px; }
+        input[type="text"], input[type="date"], textarea, select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 6px;
+            border-radius: 8px;
+            padding: 10px 14px;
             color: #e0e0e0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
             font-family: Arial, sans-serif;
         }
-        input:focus, textarea:focus, select:focus {
-            outline: none;
+        input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            border-color: #4fc3f7;
+            background: rgba(79,195,247,0.07);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        select option { background: #1a2a3a; color: #e0e0e0; }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .radio-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .radio-btn:hover {
             border-color: #4fc3f7;
             background: rgba(79,195,247,0.1);
         }
-        textarea { min-height: 80px; resize: vertical; }
-        .radio-group { display: flex; gap: 15px; margin-bottom: 15px; }
-        .radio-btn { display: flex; align-items: center; gap: 6px; }
-        .radio-btn input { width: auto; margin: 0; }
-        button {
-            background: linear-gradient(135deg, #4b286d, #6a3d9a);
-            color: white;
-            padding: 12px 24px;
+        .radio-btn input { accent-color: #4fc3f7; cursor: pointer; }
+        .dynamic-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        .dynamic-table th {
+            background: rgba(75,40,109,0.4);
+            color: #b39ddb;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+        .dynamic-table td {
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 6px;
+        }
+        .dynamic-table td input {
             border: none;
+            background: transparent;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            width: 100%;
+            color: #e0e0e0;
+        }
+        .add-row-btn {
+            margin-top: 8px;
+            background: rgba(79,195,247,0.1);
+            border: 1px dashed #4fc3f7;
+            color: #4fc3f7;
+            padding: 6px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+        }
+        .add-row-btn:hover { background: rgba(79,195,247,0.2); }
+        .del-row-btn {
+            background: rgba(239,83,80,0.15);
+            border: none;
+            color: #ef5350;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            width: 100%;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            gap: 12px;
+        }
+        .btn {
+            padding: 11px 28px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.2s;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(75,40,109,0.4); }
-        .button-group { display: flex; gap: 10px; margin-top: 30px; }
-        .back-btn { background: rgba(255,255,255,0.1); color: #b0bec5; }
-        .back-btn:hover { background: rgba(255,255,255,0.15); }
-        .progress { width: 100%; height: 6px; background: #1e2a3a; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #4b286d, #4fc3f7); transition: width 0.3s; }
-        .step-info { text-align: right; font-size: 0.85rem; color: #78909c; margin-bottom: 10px; }
-        .hidden { display: none; }
-        .success { background: rgba(76,175,80,0.1); border: 1px solid #4caf50; padding: 15px; border-radius: 8px; color: #81c784; margin-bottom: 20px; }
+        .btn-primary {
+            background: linear-gradient(135deg, #4b286d, #6a3d9a);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(75,40,109,0.4); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #b0bec5;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.13); }
+        .btn-success {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+        }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(46,125,50,0.4); }
+        .step-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .step-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .step-dot.active { background: #4fc3f7; transform: scale(1.3); }
+        .step-dot.done { background: #4b286d; }
+        .summary-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .summary-section h3 {
+            font-size: 0.95rem;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+        .summary-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.83rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-key { color: #78909c; font-weight: 500; }
+        .summary-val { color: #e0e0e0; word-break: break-word; }
+        .info-box {
+            background: rgba(79,195,247,0.08);
+            border: 1px solid rgba(79,195,247,0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            color: #90caf9;
+            margin-bottom: 16px;
+        }
+        .green-note {
+            background: rgba(46,125,50,0.1);
+            border: 1px solid rgba(76,175,80,0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            color: #81c784;
+            margin-bottom: 16px;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+            .summary-row { grid-template-columns: 1fr; }
+            .summary-key { margin-bottom: 4px; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🧪 NFT Request Form Builder</h1>
-    <p class="subtitle">TELUS FueliX Platform - Performance Testing Form Generator</p>
-    
-    <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="step-info">
-        <span id="stepInfo">Step 1 of 6</span>
+    <div class="header">
+        <div class="telus-badge">⚡ FueliX · TELUS</div>
+        <h1>🧪 NFT Request Form Builder</h1>
+        <p>Answer questions step-by-step and generate your completed Performance Testing Request Form</p>
     </div>
 
-    <div id="formContainer"></div>
+    <div class="step-indicators" id="stepDots"></div>
+    <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-label" id="progressLabel"></div>
+
+    <div id="formSections"></div>
 </div>
 
 <script>
 const sections = [
     {
-        id: 'section1',
+        id: 'project_info',
         title: 'Project Information',
+        icon: '📋',
+        subtitle: 'Section 1.1 - Basic project details',
         fields: [
-            { id: 'project_name', label: 'Project Name *', type: 'text' },
-            { id: 'wbs_code', label: 'WBS Code *', type: 'text' },
-            { id: 'staging_date', label: 'Staging Release Date *', type: 'date' },
-            { id: 'production_date', label: 'Production Release Date *', type: 'date' }
+            { id: 'project_name', label: 'Project Name', type: 'text', required: true },
+            { id: 'wbs_code', label: 'WBS Code', type: 'text', required: true },
+            { id: 'staging_release_date', label: 'Staging Release Date', type: 'date', required: true },
+            { id: 'production_release_date', label: 'Production Release Date', type: 'date', required: true }
         ]
     },
     {
-        id: 'section2',
-        title: 'Environment & Technology',
+        id: 'env_info',
+        title: 'Environment & Application',
+        icon: '🖥️',
+        subtitle: 'Section 1.2 - Technology under test',
         fields: [
-            { id: 'tech_web', label: 'Web / HTML?', type: 'yesno' },
-            { id: 'tech_services', label: 'Web Services?', type: 'yesno' },
-            { id: 'tech_database', label: 'Database?', type: 'yesno' },
-            { id: 'tech_batch', label: 'Batch Jobs?', type: 'yesno' }
+            { id: 'tech_web_html', label: 'Web / HTML', type: 'yesno', required: false },
+            { id: 'tech_web_services', label: 'Web Services', type: 'yesno', required: false },
+            { id: 'tech_database', label: 'Database', type: 'yesno', required: false },
+            { id: 'tech_batch_jobs', label: 'Batch Jobs', type: 'yesno', required: false },
+            { id: 'tech_other', label: 'Other (specify)', type: 'text', required: false }
         ]
     },
     {
-        id: 'section3',
-        title: 'Project Team',
+        id: 'team_info',
+        title: 'Project Team / Resources',
+        icon: '👥',
+        subtitle: 'Section 2.1 - Roles and Contact Information',
         fields: [
-            { id: 'ops_pm', label: 'OPS PM Name *', type: 'text' },
-            { id: 'project_pm', label: 'Project PM Name *', type: 'text' },
-            { id: 'bsa', label: 'BSA Name *', type: 'text' },
-            { id: 'dev_prime', label: 'Dev Prime *', type: 'text' },
-            { id: 'qa_prime', label: 'QA Prime *', type: 'text' },
-            { id: 'perf_lead', label: 'Performance Test Lead *', type: 'text' }
+            { id: 'ops_pm', label: 'OPS PM Name', type: 'text', required: true },
+            { id: 'ops_pm_phone', label: 'OPS PM Phone', type: 'text', required: false },
+            { id: 'project_pm', label: 'Project PM Name', type: 'text', required: true },
+            { id: 'project_pm_phone', label: 'Project PM Phone', type: 'text', required: false },
+            { id: 'bsa', label: 'BSA Name', type: 'text', required: true },
+            { id: 'dev_prime', label: 'Dev Prime Name', type: 'text', required: true },
+            { id: 'qa_prime', label: 'QA Prime Name', type: 'text', required: true },
+            { id: 'e_room', label: 'E Room (documentation access)', type: 'text', required: true },
+            { id: 'perf_lead', label: 'Performance Test Lead', type: 'text', required: true },
+            { id: 'perf_analyst1', label: 'Performance Test Analyst #1', type: 'text', required: false },
+            { id: 'perf_analyst2', label: 'Performance Test Analyst #2', type: 'text', required: false }
         ]
     },
     {
-        id: 'section4',
+        id: 'project_desc',
         title: 'Project Description',
+        icon: '📝',
+        subtitle: 'Section 3.1-3.2 - High-level description and requirements',
         fields: [
-            { id: 'high_level', label: 'High Level Project Description *', type: 'textarea' },
-            { id: 'tech_req', label: 'Performance / Technical Requirements *', type: 'textarea' }
+            { id: 'high_level_desc', label: 'High Level Project / Release Description & Applications Impacted', type: 'textarea', required: true },
+            { id: 'perf_tech_req', label: 'Performance / Technical Requirements (objectives, changes, impacted components)', type: 'textarea', required: true }
         ]
     },
     {
-        id: 'section5',
-        title: 'Architecture & Deployment',
+        id: 'transactions',
+        title: 'Business Transactions in Scope',
+        icon: '🔄',
+        subtitle: 'Section 3.3 - Proposed business transactions',
         fields: [
-            { id: 'architecture', label: 'Solution Architecture Description *', type: 'textarea' },
-            { id: 'weblogic', label: 'WebLogic Domain Name', type: 'text' },
-            { id: 'cluster', label: 'Cluster', type: 'text' },
-            { id: 'using_soa', label: 'Using SOA?', type: 'yesno' }
+            { id: 'transactions_table', label: 'Business Transactions', type: 'table',
+              columns: ['#', 'Transaction Modified/Created', 'Description of Change', 'Reviewed by DBA?', 'Other Transactions Affected'],
+              required: false }
         ]
     },
     {
-        id: 'section6',
-        title: 'Tests & Services',
+        id: 'data_req',
+        title: 'Data Requirements & SLAs',
+        icon: '📊',
+        subtitle: 'Section 3.4-3.5 - Data and Service Level Agreements',
         fields: [
-            { id: 'test_load', label: 'Load Test?', type: 'yesno' },
-            { id: 'test_stress', label: 'Stress Test?', type: 'yesno' },
-            { id: 'test_stability', label: 'Stability/Soak Test?', type: 'yesno' },
-            { id: 'test_resilience', label: 'Resilience & Recoverability?', type: 'yesno' },
-            { id: 'svc_analysis', label: 'Analysis Service?', type: 'yesno' }
+            { id: 'data_req_table', label: 'Data Requirements', type: 'table',
+              columns: ['Trans #', 'Description', 'Consumed Upon Use', 'Source'],
+              required: false },
+            { id: 'sla_table', label: 'Application SLAs (90th percentile)', type: 'table',
+              columns: ['Transaction #', 'Transaction/APIs', 'Production TPH', 'Target Staging TPH', 'SLA/Response Time (ms)'],
+              required: false }
         ]
+    },
+    {
+        id: 'datacenter',
+        title: 'Data Center Move',
+        icon: '🏢',
+        subtitle: 'Section 3.6 - Data center migration details',
+        fields: [
+            { id: 'datacenter_move', label: 'Moving any component (WebLogic/service/Database) from one Data Center?', type: 'yesno', required: false },
+            { id: 'datacenter_details', label: 'If yes, specify details of old and new Datacenter', type: 'textarea', required: false }
+        ]
+    },
+    {
+        id: 'app_deployment',
+        title: 'Application Deployment Details',
+        icon: '🚀',
+        subtitle: 'Section 4.1-4.2 - Architecture and deployment information',
+        fields: [
+            { id: 'architecture_desc', label: 'Context and/or Solution Architecture Diagram Description', type: 'textarea', required: true },
+            { id: 'weblogic_domain', label: 'WebLogic Domain Name', type: 'text', required: false },
+            { id: 'cluster', label: 'Cluster', type: 'text', required: false },
+            { id: 'connection_pool', label: 'ConnectionPool/MQueue Name', type: 'text', required: false },
+            { id: 'ear_file', label: 'EAR File', type: 'text', required: false },
+            { id: 'using_soa', label: 'Using SOA?', type: 'yesno', required: false },
+            { id: 'backend_services', label: 'Backend/Web Service details (Service name, Version, URL/WSDL, Operations)', type: 'textarea', required: false }
+        ]
+    },
+    {
+        id: 'sql_info',
+        title: 'SQL Database Information',
+        icon: '🗄️',
+        subtitle: 'Section 4.3 - Database impacts and queries',
+        fields: [
+            { id: 'db_table', label: 'Databases Impacted by Changes', type: 'table',
+              columns: ['Database(s)', 'Servers', 'SQL Modified/New (Y/N)', 'Load Increase (Y/N)'],
+              required: false },
+            { id: 'new_sql_queries', label: 'New & Modified SQL Queries (provide to DBA for tuning)', type: 'textarea', required: false },
+            { id: 'db_volume', label: 'Volume Increase on Database (% increase)', type: 'textarea', required: false }
+        ]
+    },
+    {
+        id: 'test_scope',
+        title: 'Test Scope — Services Requested',
+        icon: '🧪',
+        subtitle: 'Section 5.1 - Select services required for performance testing',
+        fields: [
+            { id: 'svc_test_approach', label: 'Test Approach Document', type: 'yesno', required: false },
+            { id: 'svc_env_setup', label: 'Test Environment Setup', type: 'yesno', required: false },
+            { id: 'svc_data_prep', label: 'Test Data Preparation', type: 'yesno', required: false },
+            { id: 'svc_scripting', label: 'Scripting', type: 'yesno', required: false },
+            { id: 'svc_execution', label: 'Execution', type: 'yesno', required: false },
+            { id: 'svc_analysis', label: 'Analysis', type: 'yesno', required: false },
+            { id: 'svc_comments', label: 'Additional Comments on Services', type: 'textarea', required: false }
+        ]
+    },
+    {
+        id: 'tests_requested',
+        title: 'Tests Requested',
+        icon: '✅',
+        subtitle: 'Section 5.2 - Select which tests are needed',
+        fields: [
+            { id: 'test_benchmark', label: 'Benchmark Test (prior to staging release)', type: 'yesno', required: false },
+            { id: 'test_baseline', label: 'Baseline Test (capture avg response times)', type: 'yesno', required: false },
+            { id: 'test_load', label: 'Load Test (normal usage behavior)', type: 'yesno', required: false },
+            { id: 'test_integrated_load', label: 'Integrated Load Test (with integrated systems)', type: 'yesno', required: false },
+            { id: 'test_resilience', label: 'Resilience & Recoverability Testing', type: 'yesno', required: false },
+            { id: 'test_stress', label: 'Stress Test (determine breaking point)', type: 'yesno', required: false },
+            { id: 'test_stability', label: 'Stability (Soak) Test (long duration)', type: 'yesno', required: false },
+            { id: 'test_throughput', label: 'Throughput Test (specified # of times over period)', type: 'yesno', required: false },
+            { id: 'test_integrity', label: 'Integrity Test (results as expected under load)', type: 'yesno', required: false },
+            { id: 'test_failover', label: 'Failover Test (Data Center Move)', type: 'yesno', required: false }
+        ]
+    },
+    {
+        id: 'assumptions_risks',
+        title: 'Assumptions & Risks',
+        icon: '⚠️',
+        subtitle: 'Section 6 - Assumptions, risks, and issues',
+        fields: [
+            { id: 'assumptions_table', label: 'Assumptions', type: 'table',
+              columns: ['#', 'Assumption'],
+              required: false },
+            { id: 'risks_table', label: 'Risks', type: 'table',
+              columns: ['#', 'Risk', 'Mitigation Plan', 'Contingency Plan'],
+              required: false },
+            { id: 'issues_table', label: 'Issues', type: 'table',
+              columns: ['#', 'Issue', 'Contingency Plan'],
+              required: false }
+        ]
+    },
+    {
+        id: 'review',
+        title: 'Review & Generate',
+        icon: '📄',
+        subtitle: 'Final review before generating document',
+        fields: [],
+        isReview: true
     }
 ];
 
-let currentSection = 0;
-let formData = JSON.parse(localStorage.getItem('nftData') || '{}');
+let currentStep = 0;
+let formData = JSON.parse(localStorage.getItem('nftFormData') || '{}');
+let tableData = JSON.parse(localStorage.getItem('nftTableData') || '{}');
 
-function saveData() {
-    localStorage.setItem('nftData', JSON.stringify(formData));
+function initTableData() {
+    sections.forEach(sec => {
+        sec.fields.forEach(f => {
+            if (f.type === 'table' && !tableData[f.id]) {
+                tableData[f.id] = [{}];
+            }
+        });
+    });
+    saveAllData();
+}
+
+function saveAllData() {
+    localStorage.setItem('nftFormData', JSON.stringify(formData));
+    localStorage.setItem('nftTableData', JSON.stringify(tableData));
+}
+
+function renderStepDots() {
+    const container = document.getElementById('stepDots');
+    container.innerHTML = '';
+    sections.forEach((s, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
+        dot.title = s.title;
+        dot.onclick = () => { if (i < currentStep) { currentStep = i; saveCurrentSection(); renderSection(); } };
+        container.appendChild(dot);
+    });
+}
+
+function updateProgress() {
+    const pct = Math.round((currentStep / (sections.length - 1)) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = 'Step ' + (currentStep + 1) + ' of ' + sections.length;
 }
 
 function renderSection() {
-    const section = sections[currentSection];
-    const container = document.getElementById('formContainer');
-    
-    let html = '<div class="section">';
-    html += '<h2>' + section.title + '</h2>';
-    
-    section.fields.forEach(field => {
-        html += '<label>' + field.label + '</label>';
-        
-        if (field.type === 'text' || field.type === 'date') {
-            html += '<input type="' + field.type + '" id="' + field.id + '" value="' + (formData[field.id] || '') + '">';
-        } else if (field.type === 'textarea') {
-            html += '<textarea id="' + field.id + '">' + (formData[field.id] || '') + '</textarea>';
-        } else if (field.type === 'yesno') {
-            const val = formData[field.id] || '';
-            html += '<div class="radio-group">';
-            html += '<label class="radio-btn"><input type="radio" name="' + field.id + '" value="Y" ' + (val === 'Y' ? 'checked' : '') + '> Yes</label>';
-            html += '<label class="radio-btn"><input type="radio" name="' + field.id + '" value="N" ' + (val === 'N' ? 'checked' : '') + '> No</label>';
-            html += '<label class="radio-btn"><input type="radio" name="' + field.id + '" value="N/A" ' + (val === 'N/A' ? 'checked' : '') + '> N/A</label>';
-            html += '</div>';
-        }
-    });
-    
-    html += '<div class="button-group">';
-    if (currentSection > 0) {
-        html += '<button class="back-btn" onclick="previousSection()">← Back</button>';
-    }
-    if (currentSection < sections.length - 1) {
-        html += '<button onclick="nextSection()">Next →</button>';
-    } else {
-        html += '<button onclick="downloadForm()">📥 Download Form</button>';
-    }
-    html += '</div></div>';
-    
-    container.innerHTML = html;
+    renderStepDots();
     updateProgress();
-}
+    const sec = sections[currentStep];
+    const container = document.getElementById('formSections');
 
-function nextSection() {
-    saveCurrentSection();
-    if (currentSection < sections.length - 1) {
-        currentSection++;
-        renderSection();
-        window.scrollTo(0, 0);
+    if (sec.isReview) {
+        renderReview(container);
+        return;
     }
+
+    let html = '<div class="card"><div class="section-title"><span class="icon">' + sec.icon + '</span>' + sec.title + 
+               '</div><div class="section-subtitle">' + sec.subtitle + '</div>';
+
+    if (sec.id === 'test_scope' || sec.id === 'tests_requested') {
+        html += '<div class="green-note">🟢 Fields will be completed by the Performance Team. Your selections guide the scope.</div>';
+    }
+
+    sec.fields.forEach(f => {
+        html += '<div class="question-block"><label>' + f.label + 
+                (f.required ? '<span class="required">*</span>' : '') + '</label>';
+
+        if (f.type === 'text') {
+            html += '<input type="text" id="field_' + f.id + '" value="' + (formData[f.id] || '') + '" placeholder="Enter ' + f.label.toLowerCase() + '">';
+        } else if (f.type === 'date') {
+            html += '<input type="date" id="field_' + f.id + '" value="' + (formData[f.id] || '') + '">';
+        } else if (f.type === 'textarea') {
+            html += '<textarea id="field_' + f.id + '" placeholder="Enter details...">' + (formData[f.id] || '') + '</textarea>';
+        } else if (f.type === 'yesno') {
+            const val = formData[f.id] || '';
+            html += '<div class="radio-group">' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="Y" ' + (val === 'Y' ? 'checked' : '') + '> Yes</label>' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="N" ' + (val === 'N' ? 'checked' : '') + '> No</label>' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="N/A" ' + (val === 'N/A' ? 'checked' : '') + '> N/A</label>' +
+                '</div>';
+        } else if (f.type === 'table') {
+            html += renderTable(f);
+        }
+        html += '</div>';
+    });
+
+    html += '<div class="nav-buttons">' +
+            (currentStep > 0 ? '<button class="btn btn-secondary" onclick="goBack()">← Back</button>' : '<div></div>') +
+            '<button class="btn btn-primary" onclick="goNext()">Next →</button>' +
+            '</div></div>';
+
+    container.innerHTML = html;
+
+    sec.fields.forEach(f => {
+        if (f.type === 'table') attachTableListeners(f);
+    });
 }
 
-function previousSection() {
-    saveCurrentSection();
-    if (currentSection > 0) {
-        currentSection--;
+function renderTable(f) {
+    const rows = tableData[f.id] || [{}];
+    let html = '<table class="dynamic-table"><thead><tr>';
+    f.columns.forEach(c => html += '<th>' + c + '</th>');
+    html += '<th style="width: 40px;">Del</th></tr></thead><tbody>';
+
+    rows.forEach((row, ri) => {
+        html += '<tr>';
+        f.columns.forEach(c => {
+            html += '<td><input type="text" data-table="' + f.id + '" data-row="' + ri + '" data-col="' + c + '" value="' + (row[c] || '') + '"></td>';
+        });
+        html += '<td><button class="del-row-btn" onclick="delRow('' + f.id + '',' + ri + ')">✕</button></td></tr>';
+    });
+
+    html += '</tbody></table><button class="add-row-btn" onclick="addRow('' + f.id + '')">+ Add Row</button>';
+    return html;
+}
+
+function attachTableListeners(f) {
+    document.querySelectorAll('input[data-table="' + f.id + '"]').forEach(inp => {
+        inp.addEventListener('change', function() {
+            const ri = parseInt(this.dataset.row);
+            const col = this.dataset.col;
+            if (!tableData[f.id][ri]) tableData[f.id][ri] = {};
+            tableData[f.id][ri][col] = this.value;
+            saveAllData();
+        });
+    });
+}
+
+function addRow(tableId) {
+    if (!tableData[tableId]) tableData[tableId] = [];
+    tableData[tableId].push({});
+    saveAllData();
+    renderSection();
+}
+
+function delRow(tableId, ri) {
+    if (tableData[tableId] && tableData[tableId].length > 1) {
+        tableData[tableId].splice(ri, 1);
+        saveAllData();
         renderSection();
-        window.scrollTo(0, 0);
     }
 }
 
 function saveCurrentSection() {
-    const section = sections[currentSection];
-    section.fields.forEach(field => {
-        const element = document.getElementById(field.id);
-        if (element) {
-            if (field.type === 'yesno') {
-                const checked = document.querySelector('input[name="' + field.id + '"]:checked');
-                formData[field.id] = checked ? checked.value : '';
-            } else {
-                formData[field.id] = element.value;
-            }
+    const sec = sections[currentStep];
+    if (sec.isReview) return;
+    sec.fields.forEach(f => {
+        if (f.type === 'text' || f.type === 'date' || f.type === 'textarea') {
+            const el = document.getElementById('field_' + f.id);
+            if (el) formData[f.id] = el.value;
+        } else if (f.type === 'yesno') {
+            const sel = document.querySelector('input[name="radio_' + f.id + '"]:checked');
+            if (sel) formData[f.id] = sel.value;
         }
     });
-    saveData();
+    saveAllData();
 }
 
-function updateProgress() {
-    const percent = ((currentSection + 1) / sections.length) * 100;
-    document.getElementById('progressBar').style.width = percent + '%';
-    document.getElementById('stepInfo').textContent = 'Step ' + (currentSection + 1) + ' of ' + sections.length;
-}
-
-function downloadForm() {
+function goNext() {
     saveCurrentSection();
-    
+    if (currentStep < sections.length - 1) {
+        currentStep++;
+        renderSection();
+        window.scrollTo(0, 0);
+    }
+}
+
+function goBack() {
+    saveCurrentSection();
+    if (currentStep > 0) {
+        currentStep--;
+        renderSection();
+        window.scrollTo(0, 0);
+    }
+}
+
+function renderReview(container) {
+    saveCurrentSection();
+    let html = '<div class="card"><div class="section-title"><span class="icon">📄</span>Review Your Completed Form</div>' +
+               '<div class="section-subtitle">Check all your answers before generating the document</div>' +
+               '<div class="info-box">✅ All sections complete! Click <strong>Generate Document</strong> to download your filled NFT Request Form.</div>';
+
+    const groups = [
+        { title: '1. Project Information', keys: ['project_name','wbs_code','staging_release_date','production_release_date'] },
+        { title: '2. Technology Under Test', keys: ['tech_web_html','tech_web_services','tech_database','tech_batch_jobs','tech_other'] },
+        { title: '3. Project Team', keys: ['ops_pm','ops_pm_phone','project_pm','project_pm_phone','bsa','dev_prime','qa_prime','e_room','perf_lead','perf_analyst1','perf_analyst2'] },
+        { title: '4. Project Description', keys: ['high_level_desc','perf_tech_req'] },
+        { title: '5. Data Center Move', keys: ['datacenter_move','datacenter_details'] },
+        { title: '6. Architecture & Deployment', keys: ['architecture_desc','weblogic_domain','cluster','connection_pool','ear_file','using_soa','backend_services'] },
+        { title: '7. Database Info', keys: ['new_sql_queries','db_volume'] },
+        { title: '8. Services Requested', keys: ['svc_test_approach','svc_env_setup','svc_data_prep','svc_scripting','svc_execution','svc_analysis','svc_comments'] },
+        { title: '9. Tests Requested', keys: ['test_benchmark','test_baseline','test_load','test_integrated_load','test_resilience','test_stress','test_stability','test_throughput','test_integrity','test_failover'] }
+    ];
+
+    groups.forEach(g => {
+        html += '<div class="summary-section"><h3>' + g.title + '</h3>';
+        g.keys.forEach(k => {
+            const val = formData[k] || '—';
+            const display = val.length > 80 ? val.substring(0, 80) + '...' : val;
+            html += '<div class="summary-row"><span class="summary-key">' + k.replace(/_/g, ' ') + ':</span><span class="summary-val">' + display + '</span></div>';
+        });
+        html += '</div>';
+    });
+
+    html += '<div class="nav-buttons"><button class="btn btn-secondary" onclick="goBack()">← Back</button>' +
+            '<button class="btn btn-success" onclick="generateDocument()">📥 Generate Document</button></div></div>';
+
+    container.innerHTML = html;
+}
+
+function generateDocument() {
+    const d = formData;
+    const t = tableData;
+
+    function tableToText(tableId, cols) {
+        const rows = t[tableId] || [];
+        if (!rows.length) return '  (none provided)\n';
+        let txt = '  ' + cols.join(' | ') + '\n';
+        txt += '  ' + cols.map(c => '-'.repeat(Math.max(c.length, 12))).join('-+-') + '\n';
+        rows.forEach(row => {
+            txt += '  ' + cols.map(c => (row[c] || '—').substring(0, 30).padEnd(Math.max(c.length, 12))).join(' | ') + '\n';
+        });
+        return txt;
+    }
+
     let doc = 'NON FUNCTIONAL TESTING (NFT) REQUEST FORM\n';
-    doc += '========================================\n';
+    doc += '==========================================\n';
     doc += 'Generated: ' + new Date().toLocaleDateString() + '\n';
-    doc += 'Generated by: FueliX TELUS\n\n';
-    
-    doc += 'PROJECT INFORMATION\n';
-    doc += '-------------------\n';
-    doc += 'Project Name: ' + (formData.project_name || 'TBD') + '\n';
-    doc += 'WBS Code: ' + (formData.wbs_code || 'TBD') + '\n';
-    doc += 'Staging Release Date: ' + (formData.staging_date || 'TBD') + '\n';
-    doc += 'Production Release Date: ' + (formData.production_date || 'TBD') + '\n\n';
-    
-    doc += 'TECHNOLOGY UNDER TEST\n';
+    doc += 'Generated by: FueliX · TELUS\n';
+    doc += 'Note: Fields with * are required. Fields highlighted in Green will be completed by the Performance Team.\n\n';
+
+    doc += '========================================\n1. PROJECT ADMIN\n========================================\n\n';
+    doc += '1.1 Project Information\n-----------------------\n';
+    doc += '* Project Name:             ' + (d.project_name || 'TBD') + '\n';
+    doc += '* WBS Code:                 ' + (d.wbs_code || 'TBD') + '\n';
+    doc += '* Staging Release Date:     ' + (d.staging_release_date || 'TBD') + '\n';
+    doc += '* Production Release Date:  ' + (d.production_release_date || 'TBD') + '\n\n';
+
+    doc += '1.2 Environment and Application Information\n-------------------------------------------\n';
+    doc += '* Technology Under Test:\n';
+    doc += '  Web / HTML:              ' + (d.tech_web_html || 'N') + '\n';
+    doc += '  Web Services:            ' + (d.tech_web_services || 'N') + '\n';
+    doc += '  Database:                ' + (d.tech_database || 'N') + '\n';
+    doc += '  Batch Jobs:              ' + (d.tech_batch_jobs || 'N') + '\n';
+    doc += '  Other (Specify):         ' + (d.tech_other || 'N') + '\n\n';
+
+    doc += '========================================\n2. PROJECT TEAM / RESOURCES\n========================================\n\n';
+    doc += '2.1 Roles and Contact Information\n----------------------------------\n';
+    doc += 'Role                         Name                              Phone\n';
+    doc += '* OPS PM:                   ' + (d.ops_pm || '').padEnd(30) + ' ' + (d.ops_pm_phone || '') + '\n';
+    doc += '* Project PM:               ' + (d.project_pm || '').padEnd(30) + ' ' + (d.project_pm_phone || '') + '\n';
+    doc += '* BSA:                      ' + (d.bsa || '') + '\n';
+    doc += '* Dev Prime:                ' + (d.dev_prime || '') + '\n';
+    doc += '* QA Prime:                 ' + (d.qa_prime || '') + '\n';
+    doc += '* E Room (doc access):      ' + (d.e_room || '') + '\n';
+    doc += '* Performance Test Lead:    ' + (d.perf_lead || '') + '\n';
+    doc += '* Analyst #1:               ' + (d.perf_analyst1 || '') + '\n';
+    doc += '* Analyst #2:               ' + (d.perf_analyst2 || '') + '\n\n';
+
+    doc += '========================================\n3. PROJECT DESCRIPTION\n========================================\n\n';
+    doc += '3.1 * High Level Project / Release Description / Applications Impacted\n';
+    doc += '-----------------------------------------------------------------------\n' + (d.high_level_desc || '(Not provided)') + '\n\n';
+
+    doc += '3.2 * Performance / Technical Requirements\n';
+    doc += '------------------------------------------\n' + (d.perf_tech_req || '(Not provided)') + '\n\n';
+
+    doc += '3.3 * Proposed Business Transactions in Scope\n';
+    doc += '---------------------------------------------\n';
+    doc += tableToText('transactions_table', ['#', 'Transaction', 'Description', 'DBA Review', 'Other Transactions']) + '\n';
+
+    doc += '3.4 * Data Requirements\n';
+    doc += '------------------------\n';
+    doc += tableToText('data_req_table', ['Trans #', 'Description', 'Consumed Upon Use', 'Source']) + '\n';
+
+    doc += '3.5 Exit Criteria SLAs\n';
+    doc += '-----------------------\n';
+    doc += 'Note: SLAs achieved when 90% of transactions meet target during test\n\n';
+    doc += '* Application SLAs:\n';
+    doc += tableToText('sla_table', ['Trans #', 'APIs', 'Prod TPH', 'Staging TPH', 'SLA (ms)']) + '\n';
+
+    doc += '3.6 Data Center Move\n';
     doc += '---------------------\n';
-    doc += 'Web / HTML: ' + (formData.tech_web || 'N') + '\n';
-    doc += 'Web Services: ' + (formData.tech_services || 'N') + '\n';
-    doc += 'Database: ' + (formData.tech_database || 'N') + '\n';
-    doc += 'Batch Jobs: ' + (formData.tech_batch || 'N') + '\n\n';
-    
-    doc += 'PROJECT TEAM\n';
-    doc += '------------\n';
-    doc += 'OPS PM: ' + (formData.ops_pm || '') + '\n';
-    doc += 'Project PM: ' + (formData.project_pm || '') + '\n';
-    doc += 'BSA: ' + (formData.bsa || '') + '\n';
-    doc += 'Dev Prime: ' + (formData.dev_prime || '') + '\n';
-    doc += 'QA Prime: ' + (formData.qa_prime || '') + '\n';
-    doc += 'Performance Test Lead: ' + (formData.perf_lead || '') + '\n\n';
-    
-    doc += 'PROJECT DESCRIPTION\n';
-    doc += '-------------------\n';
-    doc += 'High Level Description:\n' + (formData.high_level || '(Not provided)') + '\n\n';
-    doc += 'Technical Requirements:\n' + (formData.tech_req || '(Not provided)') + '\n\n';
-    
-    doc += 'ARCHITECTURE & DEPLOYMENT\n';
+    doc += 'Moving any component? ' + (d.datacenter_move || 'N/A') + '\n';
+    if (d.datacenter_details) doc += 'Details: ' + d.datacenter_details + '\n';
+    doc += '\n';
+
+    doc += '========================================\n4. APPLICATION DEPLOYMENT DETAILS\n========================================\n\n';
+    doc += '4.1 * Context and/or Solution Architecture Diagram\n';
+    doc += '----------------------------------------------------\n' + (d.architecture_desc || '(Not provided)') + '\n\n';
+
+    doc += '4.2 * Application Deployment Details\n';
+    doc += '--------------------------------------\n';
+    doc += 'WebLogic Domain Name:       ' + (d.weblogic_domain || '') + '\n';
+    doc += 'Cluster:                    ' + (d.cluster || '') + '\n';
+    doc += 'ConnectionPool/MQueue Name: ' + (d.connection_pool || '') + '\n';
+    doc += 'EAR File:                   ' + (d.ear_file || '') + '\n';
+    doc += 'Using SOA?                  ' + (d.using_soa || '') + '\n\n';
+    doc += 'Backend/Web Service Details:\n' + (d.backend_services || '(Not provided)') + '\n\n';
+
+    doc += '4.3 SQL Database Information\n';
+    doc += '-----------------------------\n\n';
+
+    doc += '4.3.1 Databases Impacted by Changes:\n';
+    doc += tableToText('db_table', ['Database', 'Servers', 'SQL Modified', 'Load Increase']) + '\n';
+
+    doc += '4.3.2 New & Modified SQL Queries:\n';
+    doc += (d.new_sql_queries || 'N/A') + '\n\n';
+
+    doc += '4.3.3 Volume Increase on Database:\n';
+    doc += (d.db_volume || 'N/A') + '\n\n';
+
+    doc += '========================================\n5. TEST SCOPE\n========================================\n\n';
+    doc += '5.1 * Services Requested\n';
     doc += '--------------------------\n';
-    doc += 'Architecture:\n' + (formData.architecture || '(Not provided)') + '\n\n';
-    doc += 'WebLogic Domain: ' + (formData.weblogic || '') + '\n';
-    doc += 'Cluster: ' + (formData.cluster || '') + '\n';
-    doc += 'Using SOA: ' + (formData.using_soa || '') + '\n\n';
-    
-    doc += 'TESTS REQUESTED\n';
+    doc += 'Test Approach Document:     ' + (d.svc_test_approach || '') + '\n';
+    doc += 'Environment Setup:          ' + (d.svc_env_setup || '') + '\n';
+    doc += 'Data Preparation:           ' + (d.svc_data_prep || '') + '\n';
+    doc += 'Scripting:                  ' + (d.svc_scripting || '') + '\n';
+    doc += 'Execution:                  ' + (d.svc_execution || '') + '\n';
+    doc += 'Analysis:                   ' + (d.svc_analysis || '') + '\n';
+    doc += 'Comments: ' + (d.svc_comments || '') + '\n\n';
+
+    doc += '5.2 * Tests Requested\n';
+    doc += '---------------------\n';
+    doc += 'Load & Integrated Load tests are added by default.\n\n';
+    doc += 'Benchmark Test:             ' + (d.test_benchmark || '') + '\n';
+    doc += 'Baseline Test:              ' + (d.test_baseline || '') + '\n';
+    doc += 'Load Test:                  ' + (d.test_load || '') + '\n';
+    doc += 'Integrated Load Test:       ' + (d.test_integrated_load || '') + '\n';
+    doc += 'Resilience & Recoverability: ' + (d.test_resilience || '') + '\n';
+    doc += 'Stress Test:                ' + (d.test_stress || '') + '\n';
+    doc += 'Stability (Soak) Test:      ' + (d.test_stability || '') + '\n';
+    doc += 'Throughput Test:            ' + (d.test_throughput || '') + '\n';
+    doc += 'Integrity Test:             ' + (d.test_integrity || '') + '\n';
+    doc += 'Failover Test (DC Move):    ' + (d.test_failover || '') + '\n\n';
+
+    doc += '========================================\n6. ASSUMPTIONS AND RISKS\n========================================\n\n';
+    doc += '6.1 Assumptions\n';
     doc += '----------------\n';
-    doc += 'Load Test: ' + (formData.test_load || '') + '\n';
-    doc += 'Stress Test: ' + (formData.test_stress || '') + '\n';
-    doc += 'Stability/Soak Test: ' + (formData.test_stability || '') + '\n';
-    doc += 'Resilience & Recoverability: ' + (formData.test_resilience || '') + '\n';
-    doc += 'Analysis Service: ' + (formData.svc_analysis || '') + '\n\n';
-    
-    doc += 'END OF FORM\n';
-    doc += 'Generated by FueliX TELUS\n';
+    doc += tableToText('assumptions_table', ['#', 'Assumption']) + '\n';
+
+    doc += '6.2 Risks / Issues\n';
+    doc += '-------------------\n';
+    doc += 'Risks:\n';
+    doc += tableToText('risks_table', ['#', 'Risk', 'Mitigation', 'Contingency']) + '\n';
+    doc += 'Issues:\n';
+    doc += tableToText('issues_table', ['#', 'Issue', 'Contingency']) + '\n\n';
+
+    doc += '========================================\n';
+    doc += 'END OF DOCUMENT\n';
+    doc += 'Generated by FueliX · TELUS NFT Form Builder\n';
     doc += new Date().toISOString() + '\n';
-    
-    const blob = new Blob([doc], { type: 'text/plain' });
+    doc += '========================================\n';
+
+    const blob = new Blob([doc], { type: 'text/plain;charset=utf-8' });
+    const projectName = (d.project_name || 'NFT_Request').replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = (formData.project_name || 'NFT_Request').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_nft_form.txt';
+    link.download = projectName + '_nft_request_form.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
 
+initTableData();
 renderSection();
 </script>
 </body>
