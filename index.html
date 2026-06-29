@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Request Form Builder - TELUS FueliX</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #90a4ae;
+            font-size: 0.95rem;
+        }
+        .telus-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4b286d, #6a3d9a);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .progress-bar-wrap {
+            background: #1e2a3a;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4b286d, #4fc3f7);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        .progress-label {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #90a4ae;
+            margin-top: 4px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .section-title {
+            font-size: 1.1rem;
+            color: #4fc3f7;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .icon { font-size: 1.3rem; }
+        .section-subtitle {
+            font-size: 0.82rem;
+            color: #78909c;
+            margin-bottom: 20px;
+        }
+        .question-block {
+            margin-bottom: 22px;
+        }
+        label {
+            display: block;
+            font-size: 0.88rem;
+            color: #b0bec5;
+            margin-bottom: 6px;
+        }
+        label .required { color: #ef5350; margin-left: 3px; }
+        input[type="text"], input[type="date"], textarea, select {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            border-color: #4fc3f7;
+            background: rgba(79,195,247,0.07);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        select option { background: #1a2a3a; color: #e0e0e0; }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .radio-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .radio-btn:hover {
+            border-color: #4fc3f7;
+            background: rgba(79,195,247,0.1);
+        }
+        .radio-btn input { accent-color: #4fc3f7; }
+        .dynamic-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .dynamic-table th {
+            background: rgba(75,40,109,0.4);
+            color: #b39ddb;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .dynamic-table td {
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 4px;
+        }
+        .dynamic-table td input {
+            border: none;
+            background: transparent;
+            padding: 6px 8px;
+            font-size: 0.82rem;
+            width: 100%;
+        }
+        .add-row-btn {
+            margin-top: 8px;
+            background: rgba(79,195,247,0.1);
+            border: 1px dashed #4fc3f7;
+            color: #4fc3f7;
+            padding: 6px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+        }
+        .add-row-btn:hover { background: rgba(79,195,247,0.2); }
+        .del-row-btn {
+            background: rgba(239,83,80,0.15);
+            border: none;
+            color: #ef5350;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            gap: 12px;
+        }
+        .btn {
+            padding: 11px 28px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4b286d, #6a3d9a);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(75,40,109,0.4); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #b0bec5;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.13); }
+        .btn-success {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+        }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(46,125,50,0.4); }
+        .step-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .step-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .step-dot.active { background: #4fc3f7; transform: scale(1.3); }
+        .step-dot.done { background: #4b286d; }
+        .summary-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .summary-section h3 {
+            font-size: 0.95rem;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.83rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-key { color: #78909c; }
+        .summary-val { color: #e0e0e0; max-width: 60%; text-align: right; word-break: break-word; }
+        .info-box {
+            background: rgba(79,195,247,0.08);
+            border: 1px solid rgba(79,195,247,0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            color: #90caf9;
+            margin-bottom: 16px;
+        }
+        .green-note {
+            background: rgba(46,125,50,0.1);
+            border: 1px solid rgba(76,175,80,0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            color: #81c784;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="telus-badge">FUELIX TELUS</div>
+        <h1>NFT Request Form Builder</h1>
+        <p>Answer questions step-by-step and generate your completed Performance Testing Request Form</p>
+    </div>
+
+    <div class="step-indicators" id="stepDots"></div>
+    <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-label" id="progressLabel"></div>
+
+    <div id="formSections"></div>
+</div>
+
+<script>
+const sections = [
+    { id: 'project_info', title: 'Project Information', icon: '📋', subtitle: 'Section 1.1 - Basic project details',
+      fields: [
+        { id: 'project_name', label: 'Project Name', type: 'text', required: true },
+        { id: 'wbs_code', label: 'WBS Code', type: 'text', required: true },
+        { id: 'staging_release_date', label: 'Staging Release Date', type: 'date', required: true },
+        { id: 'production_release_date', label: 'Production Release Date', type: 'date', required: true }
+      ]
+    },
+    { id: 'env_info', title: 'Environment & Application Info', icon: '🖥️', subtitle: 'Section 1.2 - Technology under test',
+      fields: [
+        { id: 'tech_web_html', label: 'Web / HTML', type: 'yesno', required: false },
+        { id: 'tech_web_services', label: 'Web Services', type: 'yesno', required: false },
+        { id: 'tech_database', label: 'Database', type: 'yesno', required: false },
+        { id: 'tech_batch_jobs', label: 'Batch Jobs', type: 'yesno', required: false },
+        { id: 'tech_other', label: 'Other (specify if yes)', type: 'text', required: false }
+      ]
+    },
+    { id: 'team_info', title: 'Project Team / Resources', icon: '👥', subtitle: 'Section 2.1 - Roles and Contact Info',
+      fields: [
+        { id: 'ops_pm', label: 'OPS PM Name', type: 'text', required: true },
+        { id: 'project_pm', label: 'Project PM Name', type: 'text', required: true },
+        { id: 'bsa', label: 'BSA Name', type: 'text', required: true },
+        { id: 'dev_prime', label: 'Dev Prime Name', type: 'text', required: true },
+        { id: 'qa_prime', label: 'QA Prime Name', type: 'text', required: true },
+        { id: 'perf_lead', label: 'Performance Test Lead', type: 'text', required: true }
+      ]
+    },
+    { id: 'project_desc', title: 'Project Description', icon: '📝', subtitle: 'Section 3.1-3.2',
+      fields: [
+        { id: 'high_level_desc', label: 'High Level Project Description', type: 'textarea', required: true },
+        { id: 'perf_tech_req', label: 'Performance / Technical Requirements', type: 'textarea', required: true }
+      ]
+    },
+    { id: 'transactions', title: 'Business Transactions in Scope', icon: '🔄', subtitle: 'Section 3.3',
+      fields: [
+        { id: 'transactions_table', label: 'Transactions', type: 'table',
+          columns: ['#', 'Transaction', 'Description', 'DBA Review', 'Other'],
+          required: true }
+      ]
+    },
+    { id: 'data_req', title: 'Data Requirements & SLAs', icon: '📊', subtitle: 'Section 3.4-3.5',
+      fields: [
+        { id: 'sla_table', label: 'Application SLAs', type: 'table',
+          columns: ['Trans #', 'APIs', 'Prod TPH', 'Staging TPH', 'SLA (ms)'],
+          required: false }
+      ]
+    },
+    { id: 'app_deployment', title: 'Application Deployment Details', icon: '🚀', subtitle: 'Section 4',
+      fields: [
+        { id: 'architecture_desc', label: 'Solution Architecture Description', type: 'textarea', required: true },
+        { id: 'weblogic_domain', label: 'WebLogic Domain Name', type: 'text', required: false },
+        { id: 'cluster', label: 'Cluster', type: 'text', required: false }
+      ]
+    },
+    { id: 'sql_info', title: 'SQL Database Information', icon: '🗄️', subtitle: 'Section 4.3',
+      fields: [
+        { id: 'new_sql_queries', label: 'New & Modified SQL Queries', type: 'textarea', required: false }
+      ]
+    },
+    { id: 'test_scope', title: 'Test Scope - Services', icon: '🧪', subtitle: 'Section 5.1',
+      fields: [
+        { id: 'svc_test_approach', label: 'Test Approach Document', type: 'yesno', required: false },
+        { id: 'svc_execution', label: 'Execution', type: 'yesno', required: false },
+        { id: 'svc_analysis', label: 'Analysis', type: 'yesno', required: false }
+      ]
+    },
+    { id: 'tests_requested', title: 'Tests Requested', icon: '✅', subtitle: 'Section 5.2',
+      fields: [
+        { id: 'test_load', label: 'Load Test', type: 'yesno', required: false },
+        { id: 'test_stress', label: 'Stress Test', type: 'yesno', required: false },
+        { id: 'test_stability', label: 'Stability (Soak) Test', type: 'yesno', required: false }
+      ]
+    },
+    { id: 'review', title: 'Review & Generate', icon: '📄', subtitle: 'Final review',
+      fields: [], isReview: true
+    }
+];
+
+let currentStep = 0;
+let formData = {};
+let tableData = {};
+
+function initTableData() {
+    sections.forEach(sec => {
+        sec.fields.forEach(f => {
+            if (f.type === 'table') tableData[f.id] = [{}];
+        });
+    });
+}
+
+function renderStepDots() {
+    const container = document.getElementById('stepDots');
+    container.innerHTML = '';
+    sections.forEach((s, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
+        dot.title = s.title;
+        dot.onclick = () => { if (i < currentStep) { currentStep = i; renderSection(); } };
+        container.appendChild(dot);
+    });
+}
+
+function updateProgress() {
+    const pct = Math.round((currentStep / (sections.length - 1)) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = 'Step ' + (currentStep + 1) + ' of ' + sections.length;
+}
+
+function renderSection() {
+    renderStepDots();
+    updateProgress();
+    const sec = sections[currentStep];
+    const container = document.getElementById('formSections');
+
+    if (sec.isReview) {
+        renderReview(container);
+        return;
+    }
+
+    let html = '<div class="card"><div class="section-title"><span class="icon">' + sec.icon + '</span>' + sec.title + 
+               '</div><div class="section-subtitle">' + sec.subtitle + '</div>';
+
+    sec.fields.forEach(f => {
+        html += '<div class="question-block"><label>' + f.label + 
+                (f.required ? '<span class="required">*</span>' : '') + '</label>';
+
+        if (f.type === 'text') {
+            html += '<input type="text" id="field_' + f.id + '" value="' + (formData[f.id] || '') + '">';
+        } else if (f.type === 'date') {
+            html += '<input type="date" id="field_' + f.id + '" value="' + (formData[f.id] || '') + '">';
+        } else if (f.type === 'textarea') {
+            html += '<textarea id="field_' + f.id + '">' + (formData[f.id] || '') + '</textarea>';
+        } else if (f.type === 'yesno') {
+            const val = formData[f.id] || '';
+            html += '<div class="radio-group">' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="Y" ' + (val==='Y'?'checked':'') + '> Yes</label>' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="N" ' + (val==='N'?'checked':'') + '> No</label>' +
+                '<label class="radio-btn"><input type="radio" name="radio_' + f.id + '" value="N/A" ' + (val==='N/A'?'checked':'') + '> N/A</label>' +
+                '</div>';
+        } else if (f.type === 'table') {
+            html += renderTable(f);
+        }
+        html += '</div>';
+    });
+
+    html += '<div class="nav-buttons">' +
+            (currentStep > 0 ? '<button class="btn btn-secondary" onclick="goBack()">Back</button>' : '<div></div>') +
+            '<button class="btn btn-primary" onclick="goNext()">Next</button>' +
+            '</div></div>';
+
+    container.innerHTML = html;
+}
+
+function renderTable(f) {
+    const rows = tableData[f.id] || [{}];
+    let html = '<table class="dynamic-table"><thead><tr>';
+    f.columns.forEach(c => html += '<th>' + c + '</th>');
+    html += '<th>Del</th></tr></thead><tbody>';
+
+    rows.forEach((row, ri) => {
+        html += '<tr>';
+        f.columns.forEach(c => {
+            html += '<td><input type="text" data-table="' + f.id + '" data-row="' + ri + '" data-col="' + c + '" value="' + (row[c] || '') + '"></td>';
+        });
+        html += '<td><button class="del-row-btn" onclick="delRow('' + f.id + '',' + ri + ')">X</button></td></tr>';
+    });
+
+    html += '</tbody></table><button class="add-row-btn" onclick="addRow('' + f.id + '')">+ Add Row</button>';
+    return html;
+}
+
+function addRow(tableId) {
+    saveCurrentFields();
+    if (!tableData[tableId]) tableData[tableId] = [];
+    tableData[tableId].push({});
+    renderSection();
+}
+
+function delRow(tableId, ri) {
+    saveCurrentFields();
+    if (tableData[tableId] && tableData[tableId].length > 1) {
+        tableData[tableId].splice(ri, 1);
+        renderSection();
+    }
+}
+
+function saveCurrentFields() {
+    const sec = sections[currentStep];
+    if (sec.isReview) return;
+    sec.fields.forEach(f => {
+        if (f.type === 'text' || f.type === 'date' || f.type === 'textarea') {
+            const el = document.getElementById('field_' + f.id);
+            if (el) formData[f.id] = el.value;
+        } else if (f.type === 'yesno') {
+            const sel = document.querySelector('input[name="radio_' + f.id + '"]:checked');
+            if (sel) formData[f.id] = sel.value;
+        } else if (f.type === 'table') {
+            const rows = document.querySelectorAll('input[data-table="' + f.id + '"]');
+            const data = {};
+            rows.forEach(inp => {
+                const ri = parseInt(inp.dataset.row);
+                const col = inp.dataset.col;
+                if (!data[ri]) data[ri] = {};
+                data[ri][col] = inp.value;
+            });
+            tableData[f.id] = Object.values(data);
+        }
+    });
+}
+
+function goNext() {
+    saveCurrentFields();
+    if (currentStep < sections.length - 1) {
+        currentStep++;
+        renderSection();
+        window.scrollTo(0, 0);
+    }
+}
+
+function goBack() {
+    saveCurrentFields();
+    if (currentStep > 0) {
+        currentStep--;
+        renderSection();
+        window.scrollTo(0, 0);
+    }
+}
+
+function renderReview(container) {
+    let html = '<div class="card"><div class="section-title"><span class="icon">📄</span>Review Your Form</div>' +
+               '<div class="section-subtitle">Check all answers before generating</div>' +
+               '<div class="info-box">✓ All sections complete! Click Generate Document to download your filled form.</div>';
+
+    for (let key in formData) {
+        if (formData[key]) {
+            html += '<div class="summary-section"><strong>' + key + ':</strong> ' + formData[key] + '</div>';
+        }
+    }
+
+    html += '<div class="nav-buttons"><button class="btn btn-secondary" onclick="goBack()">Back</button>' +
+            '<button class="btn btn-success" onclick="generateDocument()">Generate Document</button></div></div>';
+
+    container.innerHTML = html;
+}
+
+function generateDocument() {
+    const d = formData;
+    const doc = 'NON FUNCTIONAL TESTING (NFT) REQUEST FORM\n' +
+                '========================================\n' +
+                'Generated: ' + new Date().toLocaleDateString() + '\n\n' +
+                'PROJECT INFORMATION\n' +
+                '-------------------\n' +
+                'Project Name: ' + (d.project_name || 'TBD') + '\n' +
+                'WBS Code: ' + (d.wbs_code || 'TBD') + '\n' +
+                'Staging Release Date: ' + (d.staging_release_date || 'TBD') + '\n' +
+                'Production Release Date: ' + (d.production_release_date || 'TBD') + '\n\n' +
+                'ENVIRONMENT & APPLICATION\n' +
+                '----------------------------\n' +
+                'Web/HTML: ' + (d.tech_web_html || 'N') + '\n' +
+                'Web Services: ' + (d.tech_web_services || 'N') + '\n' +
+                'Database: ' + (d.tech_database || 'N') + '\n\n' +
+                'PROJECT TEAM\n' +
+                '------------\n' +
+                'OPS PM: ' + (d.ops_pm || '') + '\n' +
+                'Project PM: ' + (d.project_pm || '') + '\n' +
+                'BSA: ' + (d.bsa || '') + '\n\n' +
+                'PROJECT DESCRIPTION\n' +
+                '-------------------\n' +
+                d.high_level_desc || '(Not provided)' + '\n\n' +
+                'TECHNICAL REQUIREMENTS\n' +
+                '---------------------\n' +
+                d.perf_tech_req || '(Not provided)' + '\n\n' +
+                'ARCHITECTURE\n' +
+                '------------\n' +
+                d.architecture_desc || '(Not provided)' + '\n\n' +
+                'END OF FORM\n' +
+                'Generated by FueliX TELUS';
+
+    const blob = new Blob([doc], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = (d.project_name || 'NFT_Request').replace(/\s+/g, '_') + '_NFT_Form.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+initTableData();
+renderSection();
+</script>
+</body>
+</html>
