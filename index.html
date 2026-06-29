@@ -135,13 +135,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 8px;
+            font-size: 0.85rem;
         }
         .dynamic-table th {
             background: rgba(75,40,109,0.4);
             color: #b39ddb;
             padding: 8px 10px;
             text-align: left;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .dynamic-table td {
@@ -152,8 +153,9 @@
             border: none;
             background: transparent;
             padding: 6px 8px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             width: 100%;
+            color: #e0e0e0;
         }
         .add-row-btn {
             margin-top: 8px;
@@ -239,7 +241,7 @@
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 0.83rem;
         }
@@ -322,13 +324,13 @@ const sections = [
       fields: [
         { id: 'transactions_table', label: 'Transactions', type: 'table',
           columns: ['#', 'Transaction', 'Description', 'DBA Review', 'Other'],
-          required: true }
+          required: false }
       ]
     },
     { id: 'data_req', title: 'Data Requirements & SLAs', icon: '📊', subtitle: 'Section 3.4-3.5',
       fields: [
         { id: 'sla_table', label: 'Application SLAs', type: 'table',
-          columns: ['Trans #', 'APIs', 'Prod TPH', 'Staging TPH', 'SLA (ms)'],
+          columns: ['Trans', 'APIs', 'Prod TPH', 'Staging TPH', 'SLA (ms)'],
           required: false }
       ]
     },
@@ -336,17 +338,20 @@ const sections = [
       fields: [
         { id: 'architecture_desc', label: 'Solution Architecture Description', type: 'textarea', required: true },
         { id: 'weblogic_domain', label: 'WebLogic Domain Name', type: 'text', required: false },
-        { id: 'cluster', label: 'Cluster', type: 'text', required: false }
+        { id: 'cluster', label: 'Cluster', type: 'text', required: false },
+        { id: 'using_soa', label: 'Using SOA?', type: 'yesno', required: false }
       ]
     },
     { id: 'sql_info', title: 'SQL Database Information', icon: '🗄️', subtitle: 'Section 4.3',
       fields: [
-        { id: 'new_sql_queries', label: 'New & Modified SQL Queries', type: 'textarea', required: false }
+        { id: 'new_sql_queries', label: 'New & Modified SQL Queries', type: 'textarea', required: false },
+        { id: 'db_volume', label: 'Estimated Volume Increase (%)', type: 'text', required: false }
       ]
     },
     { id: 'test_scope', title: 'Test Scope - Services', icon: '🧪', subtitle: 'Section 5.1',
       fields: [
         { id: 'svc_test_approach', label: 'Test Approach Document', type: 'yesno', required: false },
+        { id: 'svc_env_setup', label: 'Environment Setup', type: 'yesno', required: false },
         { id: 'svc_execution', label: 'Execution', type: 'yesno', required: false },
         { id: 'svc_analysis', label: 'Analysis', type: 'yesno', required: false }
       ]
@@ -355,7 +360,8 @@ const sections = [
       fields: [
         { id: 'test_load', label: 'Load Test', type: 'yesno', required: false },
         { id: 'test_stress', label: 'Stress Test', type: 'yesno', required: false },
-        { id: 'test_stability', label: 'Stability (Soak) Test', type: 'yesno', required: false }
+        { id: 'test_stability', label: 'Stability (Soak) Test', type: 'yesno', required: false },
+        { id: 'test_resilience', label: 'Resilience & Recoverability', type: 'yesno', required: false }
       ]
     },
     { id: 'review', title: 'Review & Generate', icon: '📄', subtitle: 'Final review',
@@ -367,12 +373,31 @@ let currentStep = 0;
 let formData = {};
 let tableData = {};
 
+function loadData() {
+    const saved = localStorage.getItem('nftFormData');
+    if (saved) {
+        formData = JSON.parse(saved);
+    }
+    const savedTables = localStorage.getItem('nftTableData');
+    if (savedTables) {
+        tableData = JSON.parse(savedTables);
+    }
+}
+
+function saveData() {
+    localStorage.setItem('nftFormData', JSON.stringify(formData));
+    localStorage.setItem('nftTableData', JSON.stringify(tableData));
+}
+
 function initTableData() {
     sections.forEach(sec => {
         sec.fields.forEach(f => {
-            if (f.type === 'table') tableData[f.id] = [{}];
+            if (f.type === 'table' && !tableData[f.id]) {
+                tableData[f.id] = [{}];
+            }
         });
     });
+    saveData();
 }
 
 function renderStepDots() {
@@ -382,7 +407,7 @@ function renderStepDots() {
         const dot = document.createElement('div');
         dot.className = 'step-dot' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
         dot.title = s.title;
-        dot.onclick = () => { if (i < currentStep) { currentStep = i; renderSection(); } };
+        dot.onclick = () => { if (i < currentStep) { currentStep = i; saveData(); renderSection(); } };
         container.appendChild(dot);
     });
 }
@@ -436,6 +461,10 @@ function renderSection() {
             '</div></div>';
 
     container.innerHTML = html;
+
+    sec.fields.forEach(f => {
+        if (f.type === 'table') attachTableListeners(f);
+    });
 }
 
 function renderTable(f) {
@@ -456,17 +485,30 @@ function renderTable(f) {
     return html;
 }
 
+function attachTableListeners(f) {
+    const inputs = document.querySelectorAll('input[data-table="' + f.id + '"]');
+    inputs.forEach(inp => {
+        inp.addEventListener('change', function() {
+            const ri = parseInt(this.dataset.row);
+            const col = this.dataset.col;
+            if (!tableData[f.id][ri]) tableData[f.id][ri] = {};
+            tableData[f.id][ri][col] = this.value;
+            saveData();
+        });
+    });
+}
+
 function addRow(tableId) {
-    saveCurrentFields();
     if (!tableData[tableId]) tableData[tableId] = [];
     tableData[tableId].push({});
+    saveData();
     renderSection();
 }
 
 function delRow(tableId, ri) {
-    saveCurrentFields();
     if (tableData[tableId] && tableData[tableId].length > 1) {
         tableData[tableId].splice(ri, 1);
+        saveData();
         renderSection();
     }
 }
@@ -481,18 +523,9 @@ function saveCurrentFields() {
         } else if (f.type === 'yesno') {
             const sel = document.querySelector('input[name="radio_' + f.id + '"]:checked');
             if (sel) formData[f.id] = sel.value;
-        } else if (f.type === 'table') {
-            const rows = document.querySelectorAll('input[data-table="' + f.id + '"]');
-            const data = {};
-            rows.forEach(inp => {
-                const ri = parseInt(inp.dataset.row);
-                const col = inp.dataset.col;
-                if (!data[ri]) data[ri] = {};
-                data[ri][col] = inp.value;
-            });
-            tableData[f.id] = Object.values(data);
         }
     });
+    saveData();
 }
 
 function goNext() {
@@ -514,66 +547,130 @@ function goBack() {
 }
 
 function renderReview(container) {
+    saveCurrentFields();
     let html = '<div class="card"><div class="section-title"><span class="icon">📄</span>Review Your Form</div>' +
                '<div class="section-subtitle">Check all answers before generating</div>' +
-               '<div class="info-box">✓ All sections complete! Click Generate Document to download your filled form.</div>';
+               '<div class="info-box">✓ Complete! Click Generate Document to download your filled form as a text file.</div>';
 
-    for (let key in formData) {
-        if (formData[key]) {
-            html += '<div class="summary-section"><strong>' + key + ':</strong> ' + formData[key] + '</div>';
-        }
-    }
+    const groups = [
+        { title: 'Project Info', keys: ['project_name', 'wbs_code', 'staging_release_date', 'production_release_date'] },
+        { title: 'Technology', keys: ['tech_web_html', 'tech_web_services', 'tech_database', 'tech_batch_jobs', 'tech_other'] },
+        { title: 'Team', keys: ['ops_pm', 'project_pm', 'bsa', 'dev_prime', 'qa_prime', 'perf_lead'] },
+        { title: 'Description', keys: ['high_level_desc', 'perf_tech_req'] },
+        { title: 'Architecture', keys: ['architecture_desc', 'weblogic_domain', 'cluster', 'using_soa'] },
+        { title: 'Database', keys: ['new_sql_queries', 'db_volume'] },
+        { title: 'Services', keys: ['svc_test_approach', 'svc_env_setup', 'svc_execution', 'svc_analysis'] },
+        { title: 'Tests', keys: ['test_load', 'test_stress', 'test_stability', 'test_resilience'] }
+    ];
+
+    groups.forEach(g => {
+        html += '<div class="summary-section"><h3>' + g.title + '</h3>';
+        g.keys.forEach(k => {
+            const val = formData[k] || '—';
+            const display = val.length > 50 ? val.substring(0, 50) + '...' : val;
+            html += '<div class="summary-row"><span class="summary-key">' + k + ':</span><span class="summary-val">' + display + '</span></div>';
+        });
+        html += '</div>';
+    });
 
     html += '<div class="nav-buttons"><button class="btn btn-secondary" onclick="goBack()">Back</button>' +
-            '<button class="btn btn-success" onclick="generateDocument()">Generate Document</button></div></div>';
+            '<button class="btn btn-success" onclick="generateDocument()">Download Form</button></div></div>';
 
     container.innerHTML = html;
 }
 
 function generateDocument() {
     const d = formData;
-    const doc = 'NON FUNCTIONAL TESTING (NFT) REQUEST FORM\n' +
-                '========================================\n' +
-                'Generated: ' + new Date().toLocaleDateString() + '\n\n' +
-                'PROJECT INFORMATION\n' +
-                '-------------------\n' +
-                'Project Name: ' + (d.project_name || 'TBD') + '\n' +
-                'WBS Code: ' + (d.wbs_code || 'TBD') + '\n' +
-                'Staging Release Date: ' + (d.staging_release_date || 'TBD') + '\n' +
-                'Production Release Date: ' + (d.production_release_date || 'TBD') + '\n\n' +
-                'ENVIRONMENT & APPLICATION\n' +
-                '----------------------------\n' +
-                'Web/HTML: ' + (d.tech_web_html || 'N') + '\n' +
-                'Web Services: ' + (d.tech_web_services || 'N') + '\n' +
-                'Database: ' + (d.tech_database || 'N') + '\n\n' +
-                'PROJECT TEAM\n' +
-                '------------\n' +
-                'OPS PM: ' + (d.ops_pm || '') + '\n' +
-                'Project PM: ' + (d.project_pm || '') + '\n' +
-                'BSA: ' + (d.bsa || '') + '\n\n' +
-                'PROJECT DESCRIPTION\n' +
-                '-------------------\n' +
-                d.high_level_desc || '(Not provided)' + '\n\n' +
-                'TECHNICAL REQUIREMENTS\n' +
-                '---------------------\n' +
-                d.perf_tech_req || '(Not provided)' + '\n\n' +
-                'ARCHITECTURE\n' +
-                '------------\n' +
-                d.architecture_desc || '(Not provided)' + '\n\n' +
-                'END OF FORM\n' +
-                'Generated by FueliX TELUS';
+    const t = tableData;
+
+    let doc = 'NON FUNCTIONAL TESTING (NFT) REQUEST FORM\n';
+    doc += '========================================\n';
+    doc += 'Generated: ' + new Date().toLocaleDateString() + '\n';
+    doc += 'Generated by: FueliX TELUS\n\n';
+
+    doc += '1. PROJECT INFORMATION\n';
+    doc += '----------------------\n';
+    doc += 'Project Name: ' + (d.project_name || 'TBD') + '\n';
+    doc += 'WBS Code: ' + (d.wbs_code || 'TBD') + '\n';
+    doc += 'Staging Release Date: ' + (d.staging_release_date || 'TBD') + '\n';
+    doc += 'Production Release Date: ' + (d.production_release_date || 'TBD') + '\n\n';
+
+    doc += '2. TECHNOLOGY UNDER TEST\n';
+    doc += '------------------------\n';
+    doc += 'Web / HTML: ' + (d.tech_web_html || 'N') + '\n';
+    doc += 'Web Services: ' + (d.tech_web_services || 'N') + '\n';
+    doc += 'Database: ' + (d.tech_database || 'N') + '\n';
+    doc += 'Batch Jobs: ' + (d.tech_batch_jobs || 'N') + '\n';
+    doc += 'Other: ' + (d.tech_other || 'N') + '\n\n';
+
+    doc += '3. PROJECT TEAM\n';
+    doc += '---------------\n';
+    doc += 'OPS PM: ' + (d.ops_pm || '') + '\n';
+    doc += 'Project PM: ' + (d.project_pm || '') + '\n';
+    doc += 'BSA: ' + (d.bsa || '') + '\n';
+    doc += 'Dev Prime: ' + (d.dev_prime || '') + '\n';
+    doc += 'QA Prime: ' + (d.qa_prime || '') + '\n';
+    doc += 'Performance Test Lead: ' + (d.perf_lead || '') + '\n\n';
+
+    doc += '4. PROJECT DESCRIPTION\n';
+    doc += '---------------------\n';
+    doc += 'High Level Description:\n' + (d.high_level_desc || '(Not provided)') + '\n\n';
+    doc += 'Performance / Technical Requirements:\n' + (d.perf_tech_req || '(Not provided)') + '\n\n';
+
+    doc += '5. BUSINESS TRANSACTIONS\n';
+    doc += '------------------------\n';
+    if (t.transactions_table && t.transactions_table.length > 0) {
+        t.transactions_table.forEach((row, i) => {
+            doc += 'Transaction ' + (i+1) + ': ' + (row['Transaction'] || row['#'] || '') + '\n';
+            doc += '  Description: ' + (row['Description'] || '') + '\n';
+            doc += '  DBA Review: ' + (row['DBA Review'] || '') + '\n\n';
+        });
+    }
+
+    doc += '6. ARCHITECTURE & DEPLOYMENT\n';
+    doc += '----------------------------\n';
+    doc += 'Architecture Description:\n' + (d.architecture_desc || '(Not provided)') + '\n\n';
+    doc += 'WebLogic Domain: ' + (d.weblogic_domain || '') + '\n';
+    doc += 'Cluster: ' + (d.cluster || '') + '\n';
+    doc += 'Using SOA: ' + (d.using_soa || '') + '\n\n';
+
+    doc += '7. SQL DATABASE INFORMATION\n';
+    doc += '---------------------------\n';
+    doc += 'New & Modified SQL Queries:\n' + (d.new_sql_queries || '(Not provided)') + '\n\n';
+    doc += 'Database Volume Increase: ' + (d.db_volume || '') + '%\n\n';
+
+    doc += '8. SERVICES REQUESTED\n';
+    doc += '---------------------\n';
+    doc += 'Test Approach Document: ' + (d.svc_test_approach || '') + '\n';
+    doc += 'Environment Setup: ' + (d.svc_env_setup || '') + '\n';
+    doc += 'Execution: ' + (d.svc_execution || '') + '\n';
+    doc += 'Analysis: ' + (d.svc_analysis || '') + '\n\n';
+
+    doc += '9. TESTS REQUESTED\n';
+    doc += '------------------\n';
+    doc += 'Load Test: ' + (d.test_load || '') + '\n';
+    doc += 'Stress Test: ' + (d.test_stress || '') + '\n';
+    doc += 'Stability (Soak) Test: ' + (d.test_stability || '') + '\n';
+    doc += 'Resilience & Recoverability: ' + (d.test_resilience || '') + '\n\n';
+
+    doc += 'END OF FORM\n';
+    doc += 'Generated by FueliX TELUS\n';
+    doc += new Date().toISOString() + '\n';
 
     const blob = new Blob([doc], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = (d.project_name || 'NFT_Request').replace(/\s+/g, '_') + '_NFT_Form.txt';
+    link.download = (d.project_name || 'NFT_Request').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_nft_form.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
+    alert('Form downloaded! Check your downloads folder.');
 }
 
+loadData();
 initTableData();
 renderSection();
 </script>
